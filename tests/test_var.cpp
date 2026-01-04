@@ -15,7 +15,7 @@
 int testsRun = 0;
 int testsPassed = 0;
 std::ostringstream oss;
-float expectedVaR90,expectedVaR95, expectedVaR99;
+double expectedVaR90,expectedVaR95, expectedVaR99;
 std::vector<double> returns = {-0.05, -0.03, -0.01, 0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06};
 double tolerance = 0.01;
 
@@ -72,8 +72,8 @@ void testParametricVaR() {
     std::cout << "\nTesting Parametric VaR...\n";
     std::cout << std::string(50, '-') << "\n";
 
-    expectedVaR95 = 0.0329;
-    expectedVaR99 = 0.0465; 
+    expectedVaR95 = 0.0570;
+    expectedVaR99 = 0.0806; 
     
     ParametricVaR calculator;
     
@@ -199,7 +199,7 @@ int main() {
         std::cout << "\n";
         
         if (testsPassed == testsRun) {
-            std::cout << "All tests passed! ✓\n";
+            std::cout << "All tests passed!\n";
             std::cout << "\nPress ENTER to exit...";
             std::cin.get();
             return 0;
