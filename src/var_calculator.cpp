@@ -18,7 +18,7 @@ double VarCalculator::standardDeviation(const std::vector<double>& data) {
         variance += (value - m) * (value - m);
     }
     
-    variance /= (data.size() - 1); // Sample standard deviation
+    variance /= (data.size() - 1);
     return std::sqrt(variance);
 }
 

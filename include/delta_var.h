@@ -3,8 +3,6 @@
 
 #include "var_calculator.h"
 
-// Delta-Normal VaR (simplified version for single asset)
-// For portfolio: VaR = sqrt(delta' * Sigma * delta) * z_alpha
 class DeltaVaR : public VarCalculator {
 public:
     double calculateVaR(const std::vector<double>& returns, double confidence) override;

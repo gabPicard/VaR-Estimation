@@ -7,23 +7,18 @@ double ParametricVaR::calculateVaR(const std::vector<double>& returns, double co
         throw std::runtime_error("Cannot calculate VaR with empty returns");
     }
     
-    // Calculate mean and standard deviation
     double mu = mean(returns);
     double sigma = standardDeviation(returns);
     
-    // Get z-score for the confidence level
     double z = getZScore(confidence);
     
     // VaR = -(mu - z * sigma)
-    // For losses: VaR = z * sigma - mu
     return z * sigma - mu;
 }
 
 double ParametricVaR::getZScore(double confidence) const {
-    // Simple lookup table for common confidence levels
-    // For more precision, could use a proper inverse normal CDF implementation
-    
-    double p = 1.0 - confidence; // Left tail probability
+
+    double p = 1.0 - confidence;
     
     // Common z-scores
     if (confidence >= 0.99) return 2.326;  // 99%
@@ -31,7 +26,6 @@ double ParametricVaR::getZScore(double confidence) const {
     if (confidence >= 0.95) return 1.645;  // 95%
     if (confidence >= 0.90) return 1.282;  // 90%
     
-    // For other values, use approximation
     // Abramowitz and Stegun approximation
     const double c0 = 2.515517;
     const double c1 = 0.802853;

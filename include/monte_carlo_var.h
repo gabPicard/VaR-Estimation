@@ -3,7 +3,6 @@
 
 #include "var_calculator.h"
 
-// Monte Carlo VaR using simulation
 class MonteCarloVaR : public VarCalculator {
 public:
     MonteCarloVaR(int numSimulations = 10000);
@@ -16,7 +15,6 @@ public:
 private:
     int numSimulations_;
     
-    // Generate random normal samples based on historical mean and std dev
     std::vector<double> simulateReturns(double mean, double stdDev, int n);
 };
 

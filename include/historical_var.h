@@ -3,7 +3,6 @@
 
 #include "var_calculator.h"
 
-// Historical VaR using historical simulation
 class HistoricalVaR : public VarCalculator {
 public:
     double calculateVaR(const std::vector<double>& returns, double confidence) override;

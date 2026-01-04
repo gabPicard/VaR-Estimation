@@ -12,19 +12,16 @@ double KernelVaR::calculateVaR(const std::vector<double>& returns, double confid
         throw std::runtime_error("Cannot calculate VaR with empty returns");
     }
     
-    // Calculate bandwidth if not set
     double h = bandwidth_;
     if (h <= 0) {
         h = calculateOptimalBandwidth(returns);
     }
     
-    // Sort returns for quantile estimation
     std::vector<double> sorted = sortedCopy(returns);
     
-    // Find the quantile using kernel density estimation
     double var = findQuantile(sorted, h, confidence);
     
-    return -var; // Return positive VaR (loss)
+    return -var;
 }
 
 double KernelVaR::gaussianKernel(double x) const {
@@ -52,21 +49,15 @@ double KernelVaR::calculateOptimalBandwidth(const std::vector<double>& data) con
 }
 
 double KernelVaR::findQuantile(const std::vector<double>& sortedData, double bandwidth, double confidence) const {
-    // We want to find x such that P(X <= x) = 1 - confidence
     double targetProb = 1.0 - confidence;
-    
-    // Use numerical integration to find the quantile
-    // Start from the minimum value and integrate the KDE until we reach the target probability
     
     double minVal = sortedData.front();
     double maxVal = sortedData.back();
     double range = maxVal - minVal;
     
-    // Extend the range a bit to account for the kernel spread
     minVal -= 3.0 * bandwidth;
     maxVal += 3.0 * bandwidth;
     
-    // Binary search for the quantile
     double left = minVal;
     double right = maxVal;
     const double tolerance = 1e-6;
@@ -75,7 +66,6 @@ double KernelVaR::findQuantile(const std::vector<double>& sortedData, double ban
     for (int iter = 0; iter < maxIterations; ++iter) {
         double mid = (left + right) / 2.0;
         
-        // Integrate PDF from minVal to mid using trapezoidal rule
         double cumulativeProb = 0.0;
         int numSteps = 1000;
         double step = (mid - minVal) / numSteps;
@@ -91,7 +81,6 @@ double KernelVaR::findQuantile(const std::vector<double>& sortedData, double ban
             }
         }
         
-        // Check if we've found the quantile
         if (std::abs(cumulativeProb - targetProb) < tolerance) {
             return mid;
         }
@@ -103,7 +92,6 @@ double KernelVaR::findQuantile(const std::vector<double>& sortedData, double ban
         }
     }
     
-    // If binary search doesn't converge well, fall back to simple percentile
     size_t index = static_cast<size_t>(targetProb * sortedData.size());
     if (index >= sortedData.size()) {
         index = sortedData.size() - 1;

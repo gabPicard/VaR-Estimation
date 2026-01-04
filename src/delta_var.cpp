@@ -7,15 +7,12 @@ double DeltaVaR::calculateVaR(const std::vector<double>& returns, double confide
         throw std::runtime_error("Cannot calculate VaR with empty returns");
     }
     
-    // For a single asset, Delta-Normal VaR is essentially the same as Parametric VaR
     // VaR = Portfolio Value * z * sigma
     // Assuming portfolio value = 1
-    
     double sigma = standardDeviation(returns);
     double z = getZScore(confidence);
     double mu = mean(returns);
     
-    // Delta-Normal VaR formula
     return z * sigma - mu;
 }
 
