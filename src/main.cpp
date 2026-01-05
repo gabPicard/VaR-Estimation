@@ -11,6 +11,7 @@
 #include "monte_carlo_var.h"
 #include "delta_var.h"
 #include "kernel_var.h"
+#include "backtesting.h"
 
 void printHeader() {
     std::cout << "\n";
@@ -28,27 +29,34 @@ void printVaRResults(const std::vector<std::unique_ptr<VarCalculator>>& calculat
     std::cout << "Confidence Level: " << (confidence * 100) << "%\n";
     std::cout << "Number of observations: " << returns.size() << "\n";
     std::cout << "\n";
-    std::cout << std::string(60, '-') << "\n";
+    std::cout << std::string(75, '-') << "\n";
     std::cout << std::left << std::setw(30) << "Method" 
-              << std::right << std::setw(15) << "VaR" 
-              << std::setw(15) << "VaR (%)" << "\n";
-    std::cout << std::string(60, '-') << "\n";
+              << std::right << std::setw(15) << "VaR (%)"
+              << std::setw(15) << "ES (%)"
+              << std::setw(15) << "Accuracy (%)" << "\n";
+    std::cout << std::string(75, '-') << "\n";
     
     for (const auto& calculator : calculators) {
         try {
             double var = calculator->calculateVaR(returns, confidence);
             double varPercent = var * 100;
+            double es = calculator->calculateES(returns, confidence);
+            double esPercent = es * 100;
+            
+            // Perform backtesting to get accuracy
+            BacktestingResult backtest = Backtesting::performBacktest(returns, var, es, confidence);
             
             std::cout << std::left << std::setw(30) << calculator->getMethodName()
-                      << std::right << std::setw(15) << std::fixed << std::setprecision(6) << var
-                      << std::setw(15) << std::fixed << std::setprecision(4) << varPercent << "%\n";
+                      << std::right << std::setw(15) << std::fixed << std::setprecision(2) << varPercent << "%"
+                      << std::setw(15) << std::fixed << std::setprecision(2) << esPercent << "%"
+                      << std::setw(15) << std::fixed << std::setprecision(2) << backtest.accuracy << "%\n";
         } catch (const std::exception& e) {
             std::cout << std::left << std::setw(30) << calculator->getMethodName()
                       << std::right << std::setw(30) << "Error: " << e.what() << "\n";
         }
     }
     
-    std::cout << std::string(60, '-') << "\n";
+    std::cout << std::string(75, '-') << "\n";
     std::cout << "\n";
 }
 
@@ -155,6 +163,7 @@ int main(int argc, char* argv[]) {
         
         std::cout << "Note: VaR represents the maximum loss at the given confidence level.\n";
         std::cout << "      A higher VaR indicates greater risk.\n";
+        std::cout << "      ES (Expected Shortfall) is the average loss beyond the VaR threshold.\n";
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";

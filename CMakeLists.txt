@@ -17,6 +17,7 @@ set(SOURCES
     src/monte_carlo_var.cpp
     src/delta_var.cpp
     src/kernel_var.cpp
+    src/backtesting.cpp
 )
 
 # Main executable

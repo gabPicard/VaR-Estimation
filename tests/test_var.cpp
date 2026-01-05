@@ -11,6 +11,7 @@
 #include "monte_carlo_var.h"
 #include "delta_var.h"
 #include "kernel_var.h"
+#include "backtesting.h"
 
 int testsRun = 0;
 int testsPassed = 0;
@@ -161,6 +162,63 @@ void testKernelVaR() {
     std::cout << "Kernel Density VaR tests completed.\n";
 }
 
+void testExpectedShortfall() {
+    std::cout << "\nTesting Expected Shortfall (ES)...\n";
+    std::cout << std::string(50, '-') << "\n";
+
+    HistoricalVaR calculator;
+    
+    double es95 = calculator.calculateES(returns, 0.95);
+    std::cout << "  95% ES: " << es95 << "\n";
+    
+    double es90 = calculator.calculateES(returns, 0.90);
+    std::cout << "  90% ES: " << es90 << "\n";
+    
+    assert(es95 > 0);
+    assert(es90 > 0);
+    assert(es95 >= calculator.calculateVaR(returns, 0.95)); // ES should be >= VaR
+    
+    std::cout << "[PASS] ES is calculated correctly\n";
+    testsPassed++;
+    testsRun++;
+    
+    std::cout << "Expected Shortfall tests completed.\n";
+}
+
+void testBacktesting() {
+    std::cout << "\nTesting Backtesting Functions...\n";
+    std::cout << std::string(50, '-') << "\n";
+
+    HistoricalVaR calculator;
+    
+    double var95 = calculator.calculateVaR(returns, 0.95);
+    double es95 = calculator.calculateES(returns, 0.95);
+    
+    std::cout << "  VaR (95%): " << var95 << "\n";
+    std::cout << "  ES (95%): " << es95 << "\n";
+    
+    // Perform backtest
+    BacktestingResult result = Backtesting::performBacktest(returns, var95, es95, 0.95);
+    
+    std::cout << "  VaR Exceedances: " << result.exceeds << " / " << result.totalObservations << "\n";
+    std::cout << "  Exceedance Rate: " << (result.exceedanceRate * 100.0) << "%\n";
+    std::cout << "  Accuracy Score: " << result.accuracy << "%\n";
+    
+    // Check that backtesting is working correctly
+    assert(result.totalObservations == returns.size());
+    assert(result.exceeds >= 0);
+    assert(result.accuracy >= 0 && result.accuracy <= 100);
+    
+    std::cout << "[PASS] Backtesting functions work correctly\n";
+    testsPassed++;
+    testsRun++;
+    
+    // Print detailed backtest results
+    std::cout << Backtesting::formatBacktestResults(result);
+    
+    std::cout << "Backtesting tests completed.\n";
+}
+
 void compareAllMethods() {
     std::cout << "\n\nComparing All VaR Methods...\n";
     std::cout << std::string(75, '=') << "\n";
@@ -189,6 +247,8 @@ int main() {
         testMonteCarloVaR();
         testDeltaVaR();
         testKernelVaR();
+        testExpectedShortfall();
+        testBacktesting();
         
         compareAllMethods();
         
