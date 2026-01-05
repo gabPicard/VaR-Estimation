@@ -24,3 +24,11 @@ double HistoricalVaR::calculateVaR(const std::vector<double>& returns, double co
     
     return -var;
 }
+
+double HistoricalVaR::calculateES(const std::vector<double>& returns, double confidence) {
+    if (returns.empty()) {
+        throw std::runtime_error("Cannot calculate ES with empty returns");
+    }
+    
+    return expectedShortfall(returns, confidence);
+}

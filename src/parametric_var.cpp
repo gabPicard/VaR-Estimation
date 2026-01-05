@@ -39,3 +39,23 @@ double ParametricVaR::getZScore(double confidence) const {
     
     return z;
 }
+
+double ParametricVaR::calculateES(const std::vector<double>& returns, double confidence) {
+    if (returns.empty()) {
+        throw std::runtime_error("Cannot calculate ES with empty returns");
+    }
+    
+    double mu = mean(returns);
+    double sigma = standardDeviation(returns);
+    
+    double alpha = 1.0 - confidence;
+    if (alpha <= 0.0) {
+        throw std::runtime_error("Confidence level must be less than 1.0");
+    }
+    
+    double z = getZScore(confidence);
+    const double invSqrt2Pi = 0.3989422804014327; // 1/sqrt(2π)
+    double pdf = invSqrt2Pi * std::exp(-0.5 * z * z);
+    
+    return (sigma * pdf / alpha) - mu;
+}

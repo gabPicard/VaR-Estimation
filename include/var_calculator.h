@@ -10,6 +10,7 @@ public:
     virtual ~VarCalculator() = default;
     
     virtual double calculateVaR(const std::vector<double>& returns, double confidence) = 0;
+    virtual double calculateES(const std::vector<double>& returns, double confidence) = 0;
     
     virtual std::string getMethodName() const = 0;
     
@@ -18,6 +19,7 @@ protected:
     static double mean(const std::vector<double>& data);
     static double standardDeviation(const std::vector<double>& data);
     static std::vector<double> sortedCopy(const std::vector<double>& data);
+    static double expectedShortfall(const std::vector<double>& data, double confidence);
 };
 
 #endif // VAR_CALCULATOR_H

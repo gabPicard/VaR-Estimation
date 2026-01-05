@@ -8,6 +8,7 @@ public:
     KernelVaR(double bandwidth = -1.0);
     
     double calculateVaR(const std::vector<double>& returns, double confidence) override;
+    double calculateES(const std::vector<double>& returns, double confidence) override;
     std::string getMethodName() const override { return "Kernel Density VaR"; }
     
     void setBandwidth(double h) { bandwidth_ = h; }

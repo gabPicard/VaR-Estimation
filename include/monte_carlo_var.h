@@ -8,6 +8,7 @@ public:
     MonteCarloVaR(int numSimulations = 10000);
     
     double calculateVaR(const std::vector<double>& returns, double confidence) override;
+    double calculateES(const std::vector<double>& returns, double confidence) override;
     std::string getMethodName() const override { return "Monte Carlo VaR"; }
     
     void setNumSimulations(int n) { numSimulations_ = n; }

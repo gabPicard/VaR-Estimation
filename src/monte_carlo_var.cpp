@@ -1,6 +1,7 @@
 #include "monte_carlo_var.h"
 #include <random>
 #include <algorithm>
+#include <cmath>
 
 MonteCarloVaR::MonteCarloVaR(int numSimulations) : numSimulations_(numSimulations) {}
 
@@ -39,4 +40,31 @@ std::vector<double> MonteCarloVaR::simulateReturns(double mean, double stdDev, i
     }
     
     return simulated;
+}
+
+double MonteCarloVaR::calculateES(const std::vector<double>& returns, double confidence) {
+    if (returns.empty()) {
+        throw std::runtime_error("Cannot calculate ES with empty returns");
+    }
+    
+    double mu = mean(returns);
+    double sigma = standardDeviation(returns);
+    
+    std::vector<double> simulatedReturns = simulateReturns(mu, sigma, numSimulations_);
+    std::sort(simulatedReturns.begin(), simulatedReturns.end());
+    
+    double alpha = 1.0 - confidence;
+    if (alpha <= 0.0) {
+        throw std::runtime_error("Confidence level must be less than 1.0");
+    }
+    
+    size_t tailCount = static_cast<size_t>(std::ceil(alpha * simulatedReturns.size()));
+    tailCount = std::max<size_t>(1, tailCount);
+    
+    double sum = 0.0;
+    for (size_t i = 0; i < tailCount; ++i) {
+        sum += simulatedReturns[i];
+    }
+    
+    return -(sum / static_cast<double>(tailCount));
 }
