@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include "csv_parser.h"
 #include "historical_var.h"
@@ -15,6 +16,7 @@ void printHeader() {
     std::cout << "\n";
     std::cout << "====================================================\n";
     std::cout << "       Value at Risk (VaR) Estimation Tool         \n";
+    std::cout << "            Developed by Gabriel PICARD              \n";
     std::cout << "====================================================\n";
     std::cout << "\n";
 }
@@ -111,23 +113,29 @@ int main(int argc, char* argv[]) {
     try {
         // Load data
         std::vector<double> returns;
-        
-        std::cout << "Loading data from: " << filename << "\n";
-        
-        if (!returns.empty()) {
-            std::cout << "Reading returns from column: " << columnName << "\n";
-            std::cout << "\nPress ENTER to exit...";
-            std::cin.get();
-            returns = CSVParser::parseReturns(filename, columnName);
-        } else {
-            std::cerr << "Error: No data loaded from CSV file\n";
+
+        std::cout << "Looking for file at: " << filename << "\n";
+        if (!std::filesystem::exists(filename)) {
+            std::cerr << "Error: CSV file not found at " << filename << "\n";
             std::cout << "\nPress ENTER to exit...";
             std::cin.get();
             return 1;
         }
         
-        std::cout << "Successfully loaded " << returns.size() << " observations\n";
-        std::cout << "\n";
+        std::cout << "File found.\n";
+        std::cout << "Loading data from: " << filename << "\n";
+        
+        std::cout << "Reading returns from column: " << columnName << "\n";
+        returns = CSVParser::parseReturns(filename, columnName);
+
+        if (returns.empty()) {
+            std::cerr << "Error: No data loaded from CSV file\n";
+            std::cout << "\nPress ENTER to exit...";
+            std::cin.get();
+            return 1;
+        }   
+
+        std::cout << "Successfully loaded " << returns.size() << " observations\n\n";
         
         // Create VaR calculators
         std::vector<std::unique_ptr<VarCalculator>> calculators;
