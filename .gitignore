@@ -43,3 +43,6 @@
 # CMake generated files
 build/
 
+# Data files for testing
+data/
+*.csv
