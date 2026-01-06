@@ -42,7 +42,6 @@ void printVaRResults(const std::vector<std::unique_ptr<VarCalculator>>& calculat
             double es = calculator->calculateES(returns, confidence);
             double esPercent = es * 100;
             
-            // Perform backtesting to get accuracy
             BacktestingResult backtest = Backtesting::performBacktest(returns, var, es, confidence);
             
             std::cout << std::left << std::setw(30) << calculator->getMethodName()
@@ -91,7 +90,6 @@ int main(int argc, char* argv[]) {
     int numSimulations = 10000;
     double bandwidth = -1.0;
     
-    // Parse command line arguments
     for (int i = 2; i < argc; ++i) {
         std::string arg = argv[i];
         
@@ -118,7 +116,6 @@ int main(int argc, char* argv[]) {
     printHeader();
     
     try {
-        // Load data
         std::vector<double> returns;
 
         std::cout << "Looking for file at: " << filename << "\n";
@@ -144,7 +141,6 @@ int main(int argc, char* argv[]) {
 
         std::cout << "Successfully loaded " << returns.size() << " observations\n\n";
         
-        // Create VaR calculators
         std::vector<std::unique_ptr<VarCalculator>> calculators;
         calculators.push_back(std::make_unique<HistoricalVaR>());
         calculators.push_back(std::make_unique<ParametricVaR>());
@@ -155,7 +151,6 @@ int main(int argc, char* argv[]) {
         auto kernelVar = std::make_unique<KernelVaR>(bandwidth);
         calculators.push_back(std::move(kernelVar));
         
-        // Calculate and display VaR
         printVaRResults(calculators, returns, confidence);
         
         std::cout << "Note: VaR represents the maximum loss at the given confidence level.\n";

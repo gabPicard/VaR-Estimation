@@ -187,7 +187,6 @@ void testBacktesting() {
     std::cout << "  VaR (95%): " << var95 << "\n";
     std::cout << "  ES (95%): " << es95 << "\n";
     
-    // Perform backtest
     BacktestingResult result = Backtesting::performBacktest(returns, var95, es95, 0.95);
     
     std::cout << "  VaR Exceedances: " << result.exceeds << " / " << result.totalObservations << "\n";
@@ -204,7 +203,6 @@ void testBacktesting() {
     
     testsRun++;
     
-    // Print detailed backtest results
     std::cout << Backtesting::formatBacktestResults(result);
     
     std::cout << "Backtesting tests completed.\n";
