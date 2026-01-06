@@ -9,7 +9,6 @@
 #include "historical_var.h"
 #include "parametric_var.h"
 #include "monte_carlo_var.h"
-#include "delta_var.h"
 #include "kernel_var.h"
 #include "backtesting.h"
 
@@ -152,8 +151,6 @@ int main(int argc, char* argv[]) {
         
         auto mcVar = std::make_unique<MonteCarloVaR>(numSimulations);
         calculators.push_back(std::move(mcVar));
-        
-        calculators.push_back(std::make_unique<DeltaVaR>());
         
         auto kernelVar = std::make_unique<KernelVaR>(bandwidth);
         calculators.push_back(std::move(kernelVar));
