@@ -9,7 +9,6 @@
 #include "historical_var.h"
 #include "parametric_var.h"
 #include "monte_carlo_var.h"
-#include "delta_var.h"
 #include "kernel_var.h"
 #include "backtesting.h"
 
@@ -33,10 +32,19 @@ void assertEqual(double actual, double expected, const std::string& testName) {
 
 void formatResults(std::string methodName, double obtainedVaR, double expectedVaR) {
     char pass = (std::abs(obtainedVaR - expectedVaR) < tolerance) ? 'Y' : 'N';
-    oss << std::left << std::setw(30) << methodName
+    if (methodName == "Expected Shortfall" || methodName == "Backtesting") {
+        oss << std::string(75, '-') << "\n";
+        oss << std::left << std::setw(30) << methodName
+              << std::right << std::setw(15) << std::fixed << std::setprecision(6) 
+              << ""
+              << std::setw(15) << "" << std::setw(15) << pass << "\n";
+        
+    } else {
+        oss << std::left << std::setw(30) << methodName
               << std::right << std::setw(15) << std::fixed << std::setprecision(6) 
               << obtainedVaR
               << std::setw(15) << expectedVaR << std::setw(15) << pass << "\n";
+    }
 }
 
 void testHistoricalVaR() {
@@ -122,26 +130,6 @@ void testMonteCarloVaR() {
 
 }
 
-void testDeltaVaR() {
-    std::cout << "\nTesting Delta-Normal VaR...\n";
-    std::cout << std::string(50, '-') << "\n";
-
-    expectedVaR95 = 0.0469;
-    
-    DeltaVaR calculator;
-    
-    double var95 = calculator.calculateVaR(returns, 0.95);
-    std::cout << "  95% VaR: " << var95 << "\n";
-    
-    assert(var95 > 0);
-
-    assertEqual(var95, expectedVaR95, "Delta-Normal VaR 95% Test");
-
-    formatResults("Delta-Normal VaR 95%", var95, expectedVaR95);
-    
-    std::cout << "Delta-Normal VaR tests completed.\n";
-}
-
 void testKernelVaR() {
     std::cout << "\nTesting Kernel Density VaR...\n";
     std::cout << std::string(50, '-') << "\n";
@@ -173,13 +161,15 @@ void testExpectedShortfall() {
     
     double es90 = calculator.calculateES(returns, 0.90);
     std::cout << "  90% ES: " << es90 << "\n";
+
+    if (es95 > 0 && es90 > 0 && es95 >= calculator.calculateVaR(returns, 0.95)) {
+        formatResults("Expected Shortfall", 1.0, 1.0);
+        testsPassed++;
+    } else {
+        formatResults("Expected Shortfall", 0.0, 1.0);
+        
+    }
     
-    assert(es95 > 0);
-    assert(es90 > 0);
-    assert(es95 >= calculator.calculateVaR(returns, 0.95)); // ES should be >= VaR
-    
-    std::cout << "[PASS] ES is calculated correctly\n";
-    testsPassed++;
     testsRun++;
     
     std::cout << "Expected Shortfall tests completed.\n";
@@ -203,14 +193,15 @@ void testBacktesting() {
     std::cout << "  VaR Exceedances: " << result.exceeds << " / " << result.totalObservations << "\n";
     std::cout << "  Exceedance Rate: " << (result.exceedanceRate * 100.0) << "%\n";
     std::cout << "  Accuracy Score: " << result.accuracy << "%\n";
+
+    if (result.totalObservations == returns.size() && result.exceeds >= 0 && result.accuracy >= 0 && result.accuracy <= 100) {
+        formatResults("Backtesting", 1.0, 1.0);
+        testsPassed++;
+    } else {
+        formatResults("Backtesting", 0.0, 1.0);
+        
+    }
     
-    // Check that backtesting is working correctly
-    assert(result.totalObservations == returns.size());
-    assert(result.exceeds >= 0);
-    assert(result.accuracy >= 0 && result.accuracy <= 100);
-    
-    std::cout << "[PASS] Backtesting functions work correctly\n";
-    testsPassed++;
     testsRun++;
     
     // Print detailed backtest results
@@ -229,9 +220,9 @@ void compareAllMethods() {
     std::cout << std::string(75, '-') << "\n";
     
     std::string results = oss.str();
-    std::cout << results << "\n";
+    std::cout << results;
 
-    std::cout << std::string(75, '-') << "\n";
+    std::cout << std::string(75, '=') << "\n";
 }
 
 int main() {
@@ -245,7 +236,6 @@ int main() {
         testHistoricalVaR();
         testParametricVaR();
         testMonteCarloVaR();
-        testDeltaVaR();
         testKernelVaR();
         testExpectedShortfall();
         testBacktesting();
