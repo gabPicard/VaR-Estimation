@@ -154,8 +154,8 @@ int main(int argc, char* argv[]) {
         printVaRResults(calculators, returns, confidence);
         
         std::cout << "Note: VaR represents the maximum loss at the given confidence level.\n";
-        std::cout << "      A higher VaR indicates greater risk.\n";
         std::cout << "      ES (Expected Shortfall) is the average loss beyond the VaR threshold.\n";
+        std::cout << "      A normal exceedance rate is close to " << confidence * 100 << "%.\n";
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";
