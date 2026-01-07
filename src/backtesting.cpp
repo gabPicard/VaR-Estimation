@@ -31,7 +31,8 @@ BacktestingResult Backtesting::performBacktest(const std::vector<double>& return
     double tolerance = 0.05;
     result.isAccurate = std::abs(result.exceedanceRate - expectedRate) <= tolerance;
     
-    result.accuracy = calculateAccuracyScore(result.exceedanceRate, expectedRate);
+    //result.accuracy = calculateAccuracyScore(result.exceedanceRate, expectedRate);
+    result.accuracy = 100.0 - (std::abs(result.exceedanceRate - expectedRate) / expectedRate * 100.0);
     
     return result;
 }

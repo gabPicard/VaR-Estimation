@@ -32,7 +32,7 @@ void printVaRResults(const std::vector<std::unique_ptr<VarCalculator>>& calculat
     std::cout << std::left << std::setw(30) << "Method" 
               << std::right << std::setw(15) << "VaR (%)"
               << std::setw(15) << "ES (%)"
-              << std::setw(15) << "Accuracy (%)" << "\n";
+              << std::setw(15) << "Exceedance Rate (%)" << "\n";
     std::cout << std::string(75, '-') << "\n";
     
     for (const auto& calculator : calculators) {
@@ -47,7 +47,7 @@ void printVaRResults(const std::vector<std::unique_ptr<VarCalculator>>& calculat
             std::cout << std::left << std::setw(30) << calculator->getMethodName()
                       << std::right << std::setw(15) << std::fixed << std::setprecision(2) << varPercent << "%"
                       << std::setw(15) << std::fixed << std::setprecision(2) << esPercent << "%"
-                      << std::setw(15) << std::fixed << std::setprecision(2) << backtest.accuracy << "%\n";
+                      << std::setw(15) << std::fixed << std::setprecision(2) << backtest.exceedanceRate*100 << "%\n";
         } catch (const std::exception& e) {
             std::cout << std::left << std::setw(30) << calculator->getMethodName()
                       << std::right << std::setw(30) << "Error: " << e.what() << "\n";
