@@ -1,16 +1,15 @@
 # VaR Estimation Project
 
-A comprehensive C++ implementation of multiple Value at Risk (VaR) estimation methods for financial risk management.
+A C++ implementation of multiple Value at Risk (VaR) estimation methods for a single asset.
 
 ## Features
 
-This project implements **5 different VaR calculation methods**:
+This project implements **4 different VaR calculation methods**:
 
 1. **Historical VaR** - Non-parametric method using historical simulation
 2. **Parametric VaR** - Variance-Covariance method assuming normal distribution
 3. **Monte Carlo VaR** - Simulation-based approach with random sampling
-4. **Delta-Normal VaR** - Linear approximation method
-5. **Kernel Density VaR** - Non-parametric with bandwidth-based kernel density estimation
+4. **Kernel Density VaR** - Non-parametric with bandwidth-based kernel density estimation
 
 ## Project Structure
 
@@ -22,7 +21,7 @@ VaR-Estimation/
 │   ├── historical_var.h
 │   ├── parametric_var.h
 │   ├── monte_carlo_var.h
-│   ├── delta_var.h
+│   ├── backtesting.h
 │   └── kernel_var.h
 ├── src/                  # Source files
 │   ├── main.cpp
@@ -31,7 +30,7 @@ VaR-Estimation/
 │   ├── historical_var.cpp
 │   ├── parametric_var.cpp
 │   ├── monte_carlo_var.cpp
-│   ├── delta_var.cpp
+│   ├── backtesting.cpp
 │   └── kernel_var.cpp
 ├── tests/                # Test files
 │   └── test_var.cpp
@@ -147,6 +146,14 @@ For example, a 95% VaR of $1 million means:
 - There is a 95% probability that losses will not exceed $1 million
 - There is a 5% probability that losses will exceed $1 million
 
+## Understanding Expected Shortfall
+
+Expected Shortfall (ES) is the average money lost if the threshold set by the VaR is reached.
+
+For example, an ES of $2 millions with a 95% VaR of $1 million means:
+- There is a 5% probability that losses will eceed $1 million
+- On average, the losses will be of $2 millions if they exceed $1 million
+
 ### Method Comparison
 
 | Method | Pros | Cons |
@@ -154,43 +161,7 @@ For example, a 95% VaR of $1 million means:
 | **Historical** | Simple, no distributional assumptions | Requires large dataset, past ≠ future |
 | **Parametric** | Fast, efficient with limited data | Assumes normal distribution |
 | **Monte Carlo** | Flexible, handles complex scenarios | Computationally intensive |
-| **Delta-Normal** | Fast, good for linear portfolios | Limited for non-linear instruments |
 | **Kernel Density** | Non-parametric, captures fat tails | Sensitive to bandwidth choice |
-
-## Example Output
-
-```
-====================================================
-       Value at Risk (VaR) Estimation Tool
-====================================================
-
-Loading data from: data/sample_data.csv
-Reading returns from column: returns
-Successfully loaded 89 observations
-
-Confidence Level: 95%
-Number of observations: 89
-
-------------------------------------------------------------
-Method                                VaR          VaR (%)
-------------------------------------------------------------
-Historical VaR                    0.016347        1.6347%
-Parametric VaR (Normal)           0.015234        1.5234%
-Monte Carlo VaR                   0.015891        1.5891%
-Delta-Normal VaR                  0.015234        1.5234%
-Kernel Density VaR                0.016102        1.6102%
-------------------------------------------------------------
-```
-
-## Development
-
-### Adding a New VaR Method
-
-1. Create a header file in `include/` inheriting from `VarCalculator`
-2. Implement the `calculateVaR()` and `getMethodName()` methods
-3. Add the source file to `src/`
-4. Update `CMakeLists.txt` to include the new source file
-5. Add the calculator to `main.cpp`
 
 ### Testing
 
@@ -203,16 +174,6 @@ The test suite (`tests/test_var.cpp`) includes:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
-
-## References
-
-- Jorion, P. (2007). Value at Risk: The New Benchmark for Managing Financial Risk
-- Hull, J. (2018). Risk Management and Financial Institutions
-- McNeil, A. J., Frey, R., & Embrechts, P. (2015). Quantitative Risk Management
-
 ## Author
 
-Created for educational and research purposes in quantitative finance and risk management.
+Created for educational and research purposes in quantitative finance and risk management by [Gabriel Picard](https://github.com/gabPicard). 
