@@ -64,7 +64,7 @@ cmake ..
 cmake --build . --config Release
 ```
 
-#### On Linux/macOS:
+#### On Linux:
 
 ```bash
 # Create build directory
