@@ -73,6 +73,26 @@ void printUsage(const char* programName) {
     std::cout << "  " << programName << " data/returns.csv --confidence 0.99\n";
 }
 
+void printOptionMenu(int position){
+    std::string lines[4] = {
+        "Set confidence value",
+        "Set return method",
+        "Set number of Monte Carlo simulations",
+        "Set Kernel bandwith"
+    };
+    if (position < 4 && position > -1){
+        lines[position] = ">" + lines[position];
+    }
+    for (int i = 0; i < 4; i ++){
+        std::cout << lines[i] + "\n";
+    }
+}
+
+std::string navigation(){
+    int position = 1;
+
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         printUsage(argv[0]);
