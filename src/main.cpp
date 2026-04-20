@@ -88,8 +88,35 @@ void printOptionMenu(int position){
     }
 }
 
+void printMainMenu(int position, 
+                    int confidenceValue, 
+                    std::string rtrMethod,
+                    int MCSimul,
+                    int kernelBandwith
+                ){
+    std::string lines[3] = {
+        "Run VaR Estimator",
+        "Modify parameters",
+        "Exit program"
+    };
+    if (position < 3 && position > -1){
+        lines[position] = ">" + lines[position];
+    }
+    std::cout << "----- Parameters -----\n\n";
+    std::cout << "Confidence value: " << confidenceValue << "%\n";
+    std::cout << "Return Method: " + rtrMethod + "\n";
+    std::cout << "Number of Monte Carlo simulations: " << MCSimul << "\n";
+    std::cout << "Kernel Bandwith: " << kernelBandwith << "\n\n";
+
+    for (int i = 0; i < 3; i ++){
+        std::cout << lines[i] + "\n";
+    }
+}
+
 std::string navigation(){
     int position = 1;
+    int menu = 1; // 1 -> Main Menu, 2 -> Option Menu
+    
 
 }
 
