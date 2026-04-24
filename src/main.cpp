@@ -12,6 +12,10 @@
 #include "kernel_var.h"
 #include "backtesting.h"
 
+#define KEY_UP 72
+#define KEY_DOWN 80
+
+
 void printHeader() {
     std::cout << "\n";
     std::cout << "====================================================\n";
