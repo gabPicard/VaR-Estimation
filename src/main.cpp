@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <conio.h>
 
 #include "csv_parser.h"
 #include "historical_var.h"
@@ -14,6 +15,7 @@
 
 #define KEY_UP 72
 #define KEY_DOWN 80
+#define ENTER 13
 
 
 void printHeader() {
@@ -62,32 +64,71 @@ void printVaRResults(const std::vector<std::unique_ptr<VarCalculator>>& calculat
     std::cout << "\n";
 }
 
-void printUsage(const char* programName) {
-    std::cout << "Usage: " << programName << " <csv_file> [options]\n";
-    std::cout << "\nOptions:\n";
-    std::cout << "  --confidence <value>    Set confidence level (default: 0.95)\n";
-    std::cout << "  --column <name>         Column name for returns (default: 'returns')\n";
-    std::cout << "  --price-column <name>   Column name for prices (will calculate returns)\n";
-    std::cout << "  --log-returns           Use log returns instead of simple returns\n";
-    std::cout << "  --simulations <n>       Number of Monte Carlo simulations (default: 10000)\n";
-    std::cout << "  --bandwidth <value>     Kernel bandwidth (default: auto)\n";
-    std::cout << "\nExample:\n";
-    std::cout << "  " << programName << " data/returns.csv\n";
-    std::cout << "  " << programName << " data/prices.csv --price-column price --log-returns\n";
-    std::cout << "  " << programName << " data/returns.csv --confidence 0.99\n";
+int inputConfidence(int& confidence) {
+    std::cout << "Enter confidence level (90-99): ";
+    std::cin >> confidence;
+    if (confidence < 90 || confidence > 99) {
+        std::cout << "Invalid input. Using default: 95\n";
+        confidence = 95;
+    }
+    return confidence;
+}
+
+int inputReturnMethod(std::string& rtrMethod) {
+    clearScreen();
+    std::cout << "----- Return Method Selection -----\n\n";
+    std::cout << "1. Log returns\n";
+    std::cout << "2. Simple returns\n";
+    std::cout << "\nEnter choice (1-2): ";
+    int choice;
+    std::cin >> choice;
+    if (choice == 1) {
+        rtrMethod = "log";
+    } else if (choice == 2) {
+        rtrMethod = "simple";
+    }
+    return 0;
+}
+
+int inputMCSimulations(int& MCSimul) {
+    std::cout << "Enter number of Monte Carlo simulations (1000-1000000): ";
+    std::cin >> MCSimul;
+    if (MCSimul < 1000 || MCSimul > 1000000) {
+        std::cout << "Invalid input. Using default: 100000\n";
+        MCSimul = 100000;
+    }
+    return MCSimul;
+}
+
+int inputKernelBandwidth(float& kernelBandwith) {
+    std::cout << "Enter kernel bandwidth (-1 for auto): ";
+    std::cin >> kernelBandwith;
+    if (kernelBandwith < -1 || kernelBandwith == 0) {
+        std::cout << "Invalid input. Using auto: -1\n";
+        kernelBandwith = -1;
+    }
+    return 0;
+}
+
+std::string inputFilename() {
+    std::string filename;
+    std::cout << "Enter CSV file path: ";
+    std::getline(std::cin, filename);
+    return filename;
 }
 
 void printOptionMenu(int position){
-    std::string lines[4] = {
+    std::vector<std::string> lines = {
         "Set confidence value",
         "Set return method",
         "Set number of Monte Carlo simulations",
-        "Set Kernel bandwith"
+        "Set Kernel bandwith",
+        "Come back"
     };
-    if (position < 4 && position > -1){
+    if (position < lines.size() && position > -1){
         lines[position] = ">" + lines[position];
     }
-    for (int i = 0; i < 4; i ++){
+    for (int i = 0; i < lines.size(); i ++){
         std::cout << lines[i] + "\n";
     }
 }
@@ -96,73 +137,161 @@ void printMainMenu(int position,
                     int confidenceValue, 
                     std::string rtrMethod,
                     int MCSimul,
-                    int kernelBandwith
+                    float kernelBandwith
                 ){
-    std::string lines[3] = {
+    std::vector<std::string> lines = {
         "Run VaR Estimator",
         "Modify parameters",
         "Exit program"
     };
-    if (position < 3 && position > -1){
+    if (position < lines.size() && position > -1){
         lines[position] = ">" + lines[position];
     }
-    std::cout << "----- Parameters -----\n\n";
-    std::cout << "Confidence value: " << confidenceValue << "%\n";
-    std::cout << "Return Method: " + rtrMethod + "\n";
-    std::cout << "Number of Monte Carlo simulations: " << MCSimul << "\n";
-    std::cout << "Kernel Bandwith: " << kernelBandwith << "\n\n";
 
-    for (int i = 0; i < 3; i ++){
+    for (int i = 0; i < lines.size(); i ++){
         std::cout << lines[i] + "\n";
     }
 }
 
-std::string navigation(){
-    int position = 1;
-    int menu = 1; // 1 -> Main Menu, 2 -> Option Menu
-    
-
+void naviguation(std::vector<int>& navParam, int& confidenceValue, std::string& rtrMethod, 
+                 int& MCSimul, float& kernelBandwith) {
+    switch(navParam[0]){
+        case 0:
+            if (navParam[1] == 0){
+                navParam[3] = 1;  // Run VaR Estimator
+            }
+            else{
+                std::cout << "\n";
+                inputReturnMethod(rtrMethod);
+                navParam[0] = 0;
+                navParam[1] = 0;
+            }
+            break;
+        case 1:
+            if (navParam[1] == 0){
+                navParam[1] = 1;
+                navParam[0] = 0;
+            }
+            else{
+                std::cout << "\n";
+                inputConfidence(confidenceValue);
+                std::cout << "Press any key to continue...";
+                getch();
+                navParam[0] = 0;
+                navParam[1] = 0;
+            }
+            break;
+        case 2:
+            if (navParam[1] == 0){
+                std::cout << "Exiting ...";
+                navParam[3] = 1;
+            }
+            else if (navParam[1] == 1){
+                std::cout << "\n";
+                inputMCSimulations(MCSimul);
+                std::cout << "Press any key to continue...";
+                getch();
+                navParam[0] = 0;
+                navParam[1] = 0;
+            }
+            break;
+        case 3:
+            if (navParam[1] == 1){
+                std::cout << "\n";
+                inputKernelBandwidth(kernelBandwith);
+                std::cout << "Press any key to continue...";
+                getch();
+                navParam[0] = 0;
+                navParam[1] = 0;
+            }
+            break;
+        case 4:
+            if (navParam[1] == 1){
+                navParam[1] = 0;
+                navParam[0] = 0;
+            }
+            break;
+    }
 }
 
-int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        printUsage(argv[0]);
+void clearScreen() {
+    std::cout << "\033[2J\033[1;1H";
+    std::cout.flush();
+}
+
+int main() {
+    
+    // Default parameters
+    int confidenceValue = 95;
+    std::string rtrMethod = "log";
+    int MCSimul = 100000;
+    float kernelBandwith = -1.0;
+    std::string filename = "";
+
+    printHeader();
+    
+    // Get filename first
+    std::cin.ignore();
+    filename = inputFilename();
+
+    if (!std::filesystem::exists(filename)) {
+        std::cerr << "Error: CSV file not found at " << filename << "\n";
         std::cout << "\nPress ENTER to exit...";
         std::cin.get();
         return 1;
     }
-    
-    // Default parameters
-    std::string filename = argv[1];
-    double confidence = 0.95;
-    std::string columnName = "returns";
-    std::string priceColumn = "";
-    bool logReturns = true;
-    int numSimulations = 10000;
-    double bandwidth = -1.0;
-    
-    for (int i = 2; i < argc; ++i) {
-        std::string arg = argv[i];
-        
-        if (arg == "--confidence" && i + 1 < argc) {
-            confidence = std::stod(argv[++i]);
-        } else if (arg == "--column" && i + 1 < argc) {
-            columnName = argv[++i];
-        } else if (arg == "--price-column" && i + 1 < argc) {
-            priceColumn = argv[++i];
-        } else if (arg == "--log-returns") {
-            logReturns = true;
-        } else if (arg == "--simulations" && i + 1 < argc) {
-            numSimulations = std::stoi(argv[++i]);
-        } else if (arg == "--bandwidth" && i + 1 < argc) {
-            bandwidth = std::stod(argv[++i]);
-        } else if (arg == "--help" || arg == "-h") {
-            printUsage(argv[0]);
-            std::cout << "\nPress ENTER to exit...";
-            std::cin.get();
-            return 0;
+
+    // Interactive menu loop
+    std::vector<int> navParam = {0, 0, 3, 0}; // Position, Menu, Menu Length, Exit? 
+
+    while (navParam[3] == 0){
+        clearScreen();
+        std::cout << "----- Parameters -----\n\n";
+        std::cout << "Confidence value: " << confidenceValue << "%\n";
+        std::cout << "Return Method: " + rtrMethod + "\n";
+        std::cout << "Number of Monte Carlo simulations: " << MCSimul << "\n";
+        std::cout << "Kernel Bandwith: " << kernelBandwith << "\n\n\n";
+        if (navParam[1] == 0){
+            printMainMenu(navParam[0],
+                        confidenceValue,
+                        rtrMethod,
+                        MCSimul,
+                        kernelBandwith);
+            navParam[2] = 3;
+        }
+        else if (navParam[1] == 1){
+            printOptionMenu(navParam[0]);
+            navParam[2] = 5;
+        }
+
+        char key = getch();
+        int value = key;
+
+        switch(value){
+            case KEY_UP:
+                if (navParam[0] == 0){
+                    navParam[0] = navParam[2] - 1;
+                }
+                else{
+                    navParam[0] -= 1;
+                }
+                break;
+            case KEY_DOWN:
+                navParam[0] = (navParam[0] + 1) % navParam[2];
+                break;
+            case ENTER:
+                naviguation(navParam, confidenceValue, rtrMethod, MCSimul, kernelBandwith);
+                break;
         }
     }
+
+    double confidence = confidenceValue / 100.0;
+    std::string columnName = "returns";
+    std::string priceColumn = "";
+    bool logReturns = (rtrMethod == "log");
+    int numSimulations = MCSimul;
+    double bandwidth = kernelBandwith;
+    
     
     printHeader();
     
